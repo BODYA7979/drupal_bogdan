@@ -1,0 +1,8 @@
+name = My theming
+description = my theming Drupal module
+version = 7.x-dev
+core = 7.x
+package = My modules
+
+;stylesheets[all][] = assets/css/main.css
+;scripts[] = assets/js/main.js

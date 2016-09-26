@@ -1,0 +1,5 @@
+name = My module
+description = my first Drupal module
+version = 7.x-dev
+core = 7.x
+package = My modules

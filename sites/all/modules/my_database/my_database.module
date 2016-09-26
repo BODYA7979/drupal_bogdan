@@ -1,0 +1,78 @@
+<?php
+
+/*
+ * 
+ * @file
+ * My database module
+ * 
+ * */
+ 
+/**
+ * Implements hook_init()
+ */
+ 
+function my_database_init() {
+	require_once 'my_database.select.inc';
+	require_once 'my_database.add.inc';
+	require_once 'my_database.update.inc';
+	require_once 'my_database.delete.inc';
+}
+ 
+/**
+ * Implements hook_menu()
+ */
+
+function my_database_menu() {
+	$items = array();
+	
+	$items['my-db'] = array(
+		'title' => 'My Database',
+		'page callback' => 'my_db_page',
+		'access callback' => true,
+	);
+	$items['my-db/add'] = array(
+		'title' => 'Add record',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('my_db_add_form'),
+		'access callback' => true,
+	);
+	$items['my-db/all'] = array(
+		'title' => 'All records',
+		'page callback' => 'all_records_page',
+		'access callback' => true,
+	);
+	$items['my-db/update/%'] = array(
+		'title callback' => 'update_record_title',
+		'title arguments' => array(2),
+		'page callback' => 'update_record_page',
+		'page arguments' => array(2),
+		'access callback' => true,
+	);
+	$items['my-db/delete/%'] = array(
+		'title' => 'Delete record',
+		'page callback' => 'delete_record_page',
+		'page arguments' => array(2),
+		'access callback' => true,
+	);
+	
+	return $items;
+}
+
+/**
+ * my-db page callback
+ */
+
+function my_db_page() {
+	return '
+		<div>
+			<ul>
+				<li>
+					'.l(t('Show all records'), 'my-db/all').'
+				</li>
+				<li>
+					'.l(t('Add record'), 'my-db/add').'
+				</li>
+			</ul>
+		</div>
+	';
+}

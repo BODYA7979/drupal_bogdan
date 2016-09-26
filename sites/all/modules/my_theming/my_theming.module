@@ -1,0 +1,134 @@
+<?php
+
+/**
+ * Implements hook_init()
+ */
+
+function my_theming_init() {
+	drupal_add_js(drupal_get_path('module', 'my_theming').'/assets/js/main.js');
+	drupal_add_css(drupal_get_path('module', 'my_theming').'/assets/css/main.css');
+}
+
+/**
+ * Implements hook_menu()
+ */
+
+function my_theming_menu() {
+	$items = array();
+	$items['theming'] = array(
+		'title' => 'My theming',
+		'page callback' => '_my_theming_page',
+		'access callback' => true,
+	);
+	return $items;
+}
+
+/**
+ * My theming page _callback
+ */
+
+function _my_theming_page() {
+	drupal_add_js('misc/collapse.js');
+	
+	$til = theme_item_list(array('items' => array('qwe', 'rty', 'uio'), 'title' => 'theme item list example', 'type' => 'ul', 'attributes' => array()));
+	
+	$tfs_element = array(
+		'#title' => 'Theme field set element',
+		'#value' => 'value',
+		'#attributes' => array(
+			'class' => array('help'),
+		),
+		'#collapsible' => true,
+		'#collapsed' => true,
+		'#children' => 'children',
+	);
+	$tfs = theme_fieldset(array('element' => $tfs_element));
+	
+	$tt_header = array(
+		array(
+			'data' => t('Header cell 1'),
+		),
+		array(
+			'data' => t('Header cell 2'),
+		),
+		array(
+			'data' => t('Header cell 3'),
+		),
+	);
+	$tt_row[] = array(
+		array(
+			'data' => t('Row 1 - Cell 1'),
+		),
+		array(
+			'data' => t('Row 1 - Cell 2'),
+		),
+		array(
+			'data' => t('Row 1 - Cell 3'),
+		)
+	);
+	$tt_row[] = array(
+		array(
+			'data' => t('Row 2 - Cell 1'),
+		),
+		array(
+			'data' => t('Row 2 - Cell 2'),
+		),
+		array(
+			'data' => t('Row 2 - Cell 3'),
+		)
+	);
+	$tt = theme_table(array('header' => $tt_header, 'rows' => $tt_row, 'attributes' => array(), 'caption' => '', 'colgroups' => array(), 'sticky' => '', 'empty' => ''));
+	
+	$tis = theme_image_style(array('style_name' => 'test', 'path' => 'image.jpg', 'width' => '200', 'height' => '200', 'alt' => 'alt', 'title' => 'title', 'attributes' => array()));
+	
+	$body = "<div>
+	<h1>The text below rendered using hook_theme</h1>
+		<div>
+			$til
+		</div>
+		<div>
+			$tfs
+		</div>
+		<div>
+			$tt
+		</div>
+		<div>
+			$tis
+		</div>
+	</div>";
+	
+	return theme('custom_template', array('body' => $body, 'title' => 'Title'));
+	//return $body;
+}
+
+/**
+ * Implements hook_theme()
+ */
+
+function my_theming_theme() {
+	return array(
+		'custom_template' => array(
+			'variables' => array(
+				'body' => null,
+				'title' => null,
+			),
+			'template' => 'custom_template', // uncomment if want to use tpl file. then create custom_template.tpl in module root
+		),
+	);
+}
+
+/**
+ * return's compiled template
+ */
+
+/*
+function theme_custom_template($vars) { // this is our template
+	$out = '<div class="custom-template-wrapper"><div class="title"><h2><strong>';
+	$out .= $vars['title'];
+	$out .= '</strong></h2></div>';
+	$out .= '<div class="body">';
+	$out .= $vars['body'];
+	$out .= '</div></div>';
+	return $out;
+}
+*/

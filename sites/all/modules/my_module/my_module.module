@@ -1,0 +1,98 @@
+<?php
+
+/*
+ * 
+ * @file
+ * My first module
+ * 
+ * */
+ 
+/**
+ * Implements hook_menu()
+ */
+
+function my_module_menu() {
+	$items = array();
+	$items['home'] = array(
+		'title' => 'Home',
+		'page callback' => 'home_page',
+		'page arguments' => array('mysite_frontpage_form'),
+		'access callback' => true,
+	);
+	$items['err_403'] = array(
+		'title' => 'HTTP error 403. Access denied',
+		'page callback' => 'err_403',
+		'access callback' => true,
+		'type' => MENU_LOCAL_TASK,
+	);
+	$items['err_404'] = array(
+		'title' => 'HTTP error 404. Not found',
+		'page callback' => 'err_404',
+		'access callback' => true,
+		'type' => MENU_LOCAL_TASK,
+	);
+	return $items;
+}
+
+/**
+ * Implements hook_block_info()
+ */
+
+function my_module_block_info() {
+	$blocks = array();
+	
+	$blocks['my_first_block'] = array(
+		'info' => t('My first block'),
+	);
+	
+	return $blocks;
+}
+
+/**
+ * Implements hook_block_view($blk_id = '') // $blk_id = id of block
+ */
+
+function my_module_block_view($blk_id = '') {
+	$block = array();
+	
+	if ($blk_id == 'my_first_block') {
+		$block['subject'] = t('Block subject');
+		//if (user_has_role(3)) {
+		if (user_access('administer')) {
+			$block['content'] = t('Block content');
+		}
+		else {
+			$block['content'] = t('access to view this content is denied.');
+		}
+	}
+	
+	return $block;
+}
+
+/**
+ * return home page content
+ */
+
+function home_page() {
+	$body = t('Hello, World!');
+	$body .= '<p>'.t('This is overwritten front page using hooks!').'</p>';
+	return $body;
+}
+
+/**
+ * return 403 error page content
+ */
+
+function err_403() {
+	$body = t('You don\'t have permissions to access that page.');
+	return $body;
+}
+
+/**
+ * return 404 error page content
+ */
+
+function err_404() {
+	$body = t('Page you requested was not found. Try use search.');
+	return $body;
+}

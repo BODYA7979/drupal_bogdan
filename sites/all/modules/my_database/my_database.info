@@ -1,0 +1,10 @@
+name = My database
+description = my database Drupal module
+version = 7.x-dev
+core = 7.x
+package = My modules
+
+files[] = my_database.select.inc
+files[] = my_database.add.inc
+files[] = my_database.update.inc
+files[] = my_database.delete.inc

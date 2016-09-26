@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * implements hook_install()
+ */
+function my_database_install() {
+	drupal_install_schema('my_database');
+}
+
+/**
+ * implements hook_enable()
+ */
+function my_database_enable() {
+	drupal_install_schema('my_database');
+}
+
+/**
+ * implements hook_disable()
+ */
+function my_database_disable() {
+	drupal_uninstall_schema('my_database');
+}
+
+/**
+ * implements hook_uninstall()
+ */
+function my_database_uninstall() {
+	drupal_uninstall_schema('my_database');
+}
+
+/**
+ * Implements hook_schema()
+ */
+function my_database_schema() {
+	$schema = array();
+	
+	$schema['custom_table'] = array(
+		'description' => 'my custom table',
+		'fields' => array(
+			'id' 		=> array(
+				'description' 	=> 'id field',
+				'type' 			=> 'serial',
+				'unsigned' 		=> true,
+				'not null' 		=> true,
+			),
+			'number'	=> array(
+				'description' 	=> 'number field',
+				'type'        	=> 'int',
+				'unsigned'    	=> TRUE,
+				'not null'    	=> TRUE,
+			),
+			'teaser'	=> array(
+				'description' 	=> 'teaser field.',
+				'type'        	=> 'varchar',
+				'length'      	=> 150,
+				'not null'    	=> TRUE,
+				'default'     	=> '',
+			),
+			'text' 		=> array(
+				'description' 	=> 'text field',
+				'type'        	=> 'text',
+				'not null'    	=> FALSE,
+			),
+		),
+		'primary key' => array('id'),
+	);
+	
+	return $schema;
+}

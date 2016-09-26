@@ -1,0 +1,204 @@
+<?php
+
+/*
+ * 
+ * @file
+ * My forms module
+ * 
+ * */
+ 
+/*
+ * 
+ * Implements hook_menu()
+ * 
+ * */
+
+function my_forms_menu() {
+	$items = array();
+	$items['contacts'] = array(
+		'title' => 'Contacts',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('contacts_page_form'),
+		'access callback' => true,
+	);
+	return $items;
+}
+
+/**
+ * return contacts page form elements
+ */
+
+function contacts_page_form($form, &$form_state) {
+	return [
+		'contacts' => [
+		
+			'#type' => 'fieldset',
+			'#title' => t('Example fieldset'),
+			
+			'fname' => [
+				'#type' => 'textfield',
+				'#title' => t('First name'),
+				'#rules' => [
+					'alpha'
+				],
+				'#filters' => [
+					'trim',
+					'strip_tags',
+				],
+			],
+			'lname' => [
+				'#type' => 'textfield',
+				'#title' => t('Last name'),
+				'#rules' => [
+					'alpha'
+				],
+				'#filters' => [
+					'trim',
+					'strip_tags',
+				],
+			],
+			'nick' => [
+				'#type' => 'textfield',
+				'#title' => t('Nickname'),
+				'#required' => true,
+				'#rules' => [
+					'alpha_numeric'
+				],
+				'#filters' => [
+					'trim',
+					'strip_tags',
+				],
+			],
+			'email' => [
+				'#type' => 'textfield',
+				'#title' => t('E-mail'),
+				//'#description' => 'Enter your email',
+				'#required' => true,
+				'#element_validate' => ['my_forms_email_element_validate'],
+				'#filters' => [
+					'trim',
+					'strip_tags',
+				],
+			],
+			'phone' => [
+				'#type' => 'textfield',
+				'#title' => t('Phone number'),
+				'#element_validate' => ['my_forms_phone_element_validate'],
+				'#filters' => [
+					'trim',
+					'strip_tags',
+					'numeric',
+				],
+			],
+			'sex' =>
+			[
+				'#type' => 'radios', 
+				'#title' => t('Sex'), 
+				'#default_value' => false,
+				'#options' => array(t('Male'), t('Female')),
+				'#rules' => [
+					
+				],
+				'#filters' => [
+					'trim',
+					'strip_tags',
+				],
+			],
+			'country' => [
+				'#type' => 'select',
+				'#title' => t('Country'),
+				'#default_value' => '',
+				'#options' => [
+					'ukr' => t('Ukraine'),
+					'usa' => t('United States of America'),
+				],
+				'#rules' => [
+					
+				],
+				'#filters' => [
+					'trim',
+					'strip_tags',
+				],
+			],
+			'message' => [
+				'#type' => 'textarea',
+				'#title' => t('Message'),
+				'#required' => true,
+				'#rules' => [
+					
+				],
+				'#filters' => [
+					'trim',
+					'strip_tags',
+				],
+			],
+			'ar' => [
+				'#type' => 'checkbox',
+				'#title' => t('Accept rules'),
+				'#required' => true,
+			],
+			'submit' => [
+				'#type' => 'submit',
+				'#value' => t('Submit'),
+			],
+		],
+	];
+}
+
+/**
+ * Implements hook_form_submit()
+ */
+
+function contacts_page_form_submit($form, &$form_state) {
+	$form_state['rebuild'] = TRUE;
+	
+	drupal_set_message(
+		t('Result: you @lname @fname (@nick) have e-mail @email. Your phone number is @number. Your gender is @sex. You from @country. And finally, your message: @message.',
+			[
+				'@lname' => $form_state['values']['lname'],
+				'@fname' => $form_state['values']['fname'],
+				'@nick' => $form_state['values']['nick'],
+				'@email' => $form_state['values']['email'],
+				'@number' => $form_state['values']['phone'],
+				'@sex' => $form_state['values']['sex'],
+				'@country' => $form_state['values']['country'],
+				'@message' => $form_state['values']['message'],
+			]
+		)
+	);
+}
+
+/**
+ * Implements hook_form_alter()
+ */
+
+function my_forms_form_contacts_page_form_alter(&$form, &$form_state, &$form_id) {
+	$form['contacts'] = array_merge($form, array(
+		'fl' => [
+			'#type' => 'fieldset',
+			'#title' => t('Example fieldset 2'),
+			'#description' => '<p>Test</p>',
+		],
+	)
+	);
+}
+
+/**
+ * Realize email validation function
+ */
+
+function my_forms_email_element_validate($element, &$form_state, &$form) {
+	if (!valid_email_address($element['#value'])) {
+		form_error($element, t('Please enter a valid email address.'));
+	}
+}
+
+/**
+ * Realize phone validation function
+ */
+
+function my_forms_phone_element_validate($element, &$form_state, &$form) {
+	if (!ctype_digit($element['#value'])) {
+		form_error($element, t('Please enter a valid phone number.'));
+	}
+}
