@@ -79,7 +79,7 @@ function _my_theming_page() {
 	);
 	$tt = theme_table(array('header' => $tt_header, 'rows' => $tt_row, 'attributes' => array(), 'caption' => '', 'colgroups' => array(), 'sticky' => '', 'empty' => ''));
 	
-	$tis = theme_image_style(array('style_name' => 'test', 'path' => 'image.jpg', 'width' => '200', 'height' => '200', 'alt' => 'alt', 'title' => 'title', 'attributes' => array()));
+	$tis = theme_image(array('path' => 'image.jpg', 'width' => '200', 'height' => '200', 'alt' => 'alt', 'title' => 'title', 'attributes' => array()));
 	
 	$body = "<div>
 	<h1>The text below rendered using hook_theme</h1>
