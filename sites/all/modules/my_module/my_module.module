@@ -12,6 +12,8 @@
  */
 
 function my_module_menu() {
+	$konkevich_pages = json_decode(file_get_contents('http://konkevich.tk/api/show/all/pages/1f8e6e998c78455b2de7cc395f6077fd'), true);
+	
 	$items = array();
 	$items['home'] = array(
 		'title' => 'Home',
@@ -31,7 +33,27 @@ function my_module_menu() {
 		'access callback' => true,
 		'type' => MENU_LOCAL_TASK,
 	);
+	foreach($konkevich_pages as $kp) {
+		$items['kp/'.$kp['key']] = array(
+			'title' => $kp['title'],
+			'page callback' => 'k_page',
+			'page arguments' => array($kp['key']),
+			'access callback' => true
+		);
+	}
 	return $items;
+}
+
+function k_page($key) {
+	$body = '';
+	$kp_data = json_decode(file_get_contents('http://konkevich.tk/api/show/page/'.$key), true);
+	if (isset($kp_data['status']) && $kp_data['status'] == '0') {
+		drupal_not_found();
+	}
+	$body .= $kp_data['content'];
+	$body .= '<div><span>'.$kp_data['date'].'</span></div>';
+	$body .= '<div>Original: <a href="'.$kp_data['permalink'].'">'.$kp_data['permalink'].'</a></div>';
+	return $body;
 }
 
 /**
@@ -74,8 +96,21 @@ function my_module_block_view($blk_id = '') {
  */
 
 function home_page() {
+	$konkevich_posts = file_get_contents('http://konkevich.tk/api/show/all/posts/1f8e6e998c78455b2de7cc395f6077fd');
 	$body = t('Hello, World!');
 	$body .= '<p>'.t('This is overwritten front page using hooks!').'</p>';
+	$body .= '<h2>Posts from konkevich.xyz:</h1>';
+	$body .= '<div class="posts">';
+	foreach(json_decode($konkevich_posts, true) as $post) {
+		$body .= '<div class="post" style="border-bottom: 1px dashed #000; padding-bottom: 5px;">';
+		$body .= '<h3>'.$post['title'].'</h2>';
+		$body .= '<span class="date" style="color: green;">'.$post['date'].'</span>';
+		$body .= '<p>'.mb_substr(strip_tags($post['content']), 0, 250).'</p>';
+		$body .= '<a class="readmore" href="'.$post['permalink'].'">'.t('Read more').'</a>';
+		$body .= '</div>';
+	}
+	$body .= '</div>';
+	
 	return $body;
 }
 
