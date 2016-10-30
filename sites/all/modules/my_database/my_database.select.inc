@@ -31,7 +31,10 @@ function getRecordOnID($id) {
 
 function getAllRecords() {
 	$records = array();
-	$query = db_select('custom_table', 'c')->fields('c')->orderBy('id', 'asc')->execute();
+	$query = db_select('custom_table', 'c')
+		->fields('c')
+		->orderBy('id', 'ASC')
+		->execute();
 	while($record = $query->fetchAssoc()) {
         $records[] = $record;
     }
