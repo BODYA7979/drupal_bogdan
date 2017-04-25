@@ -1,0 +1,65 @@
+<?php
+
+function my_api_menu() {
+	$items = array();
+	$items['api/films'] = array(
+		'title' => 'Films API',
+		'page callback' => 'api_films',
+		'access arguments' => array(TRUE),
+	);
+	return $items;
+}
+
+function api_films() {
+	$gp = drupal_get_query_parameters();
+	$nids = array();
+	$films = array();
+	$films_array = array();
+	$query = '';
+	
+	if (!isset($gp[0]) || isset($gp['limit'])) {
+		$query = 'SELECT `nid` FROM node WHERE type = \'film\'';
+	}
+	elseif (isset($gp['sinceId'])) {
+		$query = 'SELECT `nid` FROM node WHERE type = \'film\' AND \`nid\`>'.$gp['sinceId'];
+	}
+	elseif (isset($gp['beforeId'])) {
+		$query = 'SELECT `nid` FROM node WHERE type = \'film\' AND `nid`<'.$gp['beforeId'];
+	}
+	
+	if (isset($gp['limit']) && !empty($gp['limit'])) {
+		$query .= ' LIMIT '.$gp['limit'];
+	}
+	if ($get_nids_query = db_query($query)) {
+		foreach($get_nids_query as $row) {
+			$nids[] = $row->nid;
+		}
+		$films_array = node_load_multiple($nids);
+		foreach($films_array as $film) {
+			$link = drupal_get_path_alias('node/'.$film->nid);
+			$films[] = array(
+				'id' => $film->nid,
+				'title' => $film->title,
+				'link' => $link,
+				'image' => file_create_url($film->field_img['und'][0]['uri']),
+			);
+		}
+		print_r($films);
+		//echo json_encode($films);
+	}
+}
+
+
+function my_api_services() {
+	return array(
+		'films' => array(
+			'retrieve' => array(
+				'#help' => 'Retrieves a film',
+				'#return' => 'application/json',
+				'#key' => false,
+				'#auth' => false,
+				'#callback' => '_get_film',
+			),
+		),
+	);
+}

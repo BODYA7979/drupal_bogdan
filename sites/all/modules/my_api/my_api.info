@@ -1,0 +1,5 @@
+name = My API
+description = This module give you API for this site
+version = 0.1-dev
+core = 7.x
+package = My modules

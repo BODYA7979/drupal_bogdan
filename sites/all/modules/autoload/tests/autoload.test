@@ -1,0 +1,45 @@
+<?php
+/**
+ * @file
+ * Testing Autoload functionality.
+ */
+
+/**
+ * Class AutoloadTestCase.
+ */
+class AutoloadTestCase extends \DrupalWebTestCase {
+
+  /**
+   * Test module.
+   */
+  const MODULE = 'autoload_test';
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Autoload',
+      'group' => t('Utilities'),
+      'description' => t('Testing functionality of Autoload module.'),
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp(self::MODULE);
+  }
+
+  /**
+   * Test objects autoloading using PSR-0 and PSR-4 autoloading standards.
+   */
+  public function testAutoloading() {
+    // If something will not work we'll get fatal error :)
+    new Autoload\Tests\PSR0();
+    new Autoload\Tests\PSR4();
+    new Autoload\Tests\Example\Test();
+  }
+
+}

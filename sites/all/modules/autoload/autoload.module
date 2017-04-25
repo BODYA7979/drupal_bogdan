@@ -1,0 +1,106 @@
+<?php
+/**
+ * @file
+ * PHP 5.3+ autoloader for objects.
+ */
+
+$autoload = array(
+  'paths' => autoload_paths(),
+  'extensions' => explode(',', spl_autoload_extensions()),
+);
+
+spl_autoload_register(function ($namespace) use ($autoload) {
+  list($base) = explode('\\', $namespace);
+
+  // This hack is needed when modules enabled.
+  // @codingStandardsIgnoreStart
+  if (!empty($_SESSION['autoload_paths'])) {
+    $autoload['paths'] = array_merge($autoload['paths'], $_SESSION['autoload_paths']);
+  }
+
+  if (!empty($autoload['paths'][$base])) {
+    $relative = autoload_namespace_to_path($namespace);
+
+    foreach ($autoload['paths'][$base] as $path => $data) {
+      // Re-save the variable into temporary since if it will
+      // be changed then correct path will never be calculated.
+      $_relative = $relative;
+      // Remove part of namespace from path to
+      // file when dealing with PSR-4 standard.
+      // @see autoload_paths()
+      if ('' !== $data['psr-4']) {
+        $_relative = str_replace($data['psr-4'], '', $_relative);
+      }
+
+      // Allow to use declared by user file extensions for autoloading.
+      foreach ($autoload['extensions'] as $extension) {
+        $file = "$path/$_relative$extension";
+
+        if (file_exists($file)) {
+          require_once $file;
+          return;
+        }
+      }
+    }
+  }
+  // @codingStandardsIgnoreEnd
+});
+
+/**
+ * Collect autoloading maps.
+ *
+ * @return array[]
+ *   An array of arrays, keyed by base of the namespace.
+ */
+function autoload_paths() {
+  $processed =& drupal_static(__FUNCTION__, FALSE);
+  static $map = array();
+
+  if (!$processed) {
+    $processed = TRUE;
+
+    foreach (system_list('module_enabled') as $module_name => $data) {
+      if (!empty($data->info['autoload']) && is_array($data->info['autoload'])) {
+        $module_path = dirname($data->filename);
+
+        foreach ($data->info['autoload'] as $subdirectory => $bases) {
+          if (!is_array($bases)) {
+            continue;
+          }
+
+          $path = rtrim("$module_path/$subdirectory", '/');
+
+          if (file_exists($path)) {
+            foreach ($bases as $namespace) {
+              $parts = explode('\\', $namespace);
+
+              $map[$parts[0]][$path] = array(
+                'name' => $module_name,
+                'path' => $module_path,
+                // If parts of namespace more than one, then
+                // we dealing with PSR-4 autoloading standard.
+                // Trailing slash is needed to remove it from path later.
+                'psr-4' => count($parts) > 1 ? autoload_namespace_to_path("$namespace\\") : '',
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return $map;
+}
+
+/**
+ * Transform namespace path to file system path.
+ *
+ * @param string $namespace
+ *   Input namespace.
+ *
+ * @return string
+ *   Processed string.
+ */
+function autoload_namespace_to_path($namespace) {
+  return str_replace('\\', '/', $namespace);
+}
